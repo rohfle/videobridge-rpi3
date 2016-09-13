@@ -1,0 +1,15 @@
+#!/bin/bash
+
+BASEPATH=$( cd "$(dirname "$0")" ; pwd -P )
+BASEPATH=$( cd "$(dirname "$BASEPATH")" ; pwd -P )
+
+. $BASEPATH/videobridge.cfg
+
+while true; do
+  gst-launch-1.0 -v -e v4l2src device=$VIDEO_DEVICE ! "image/jpeg,width=$VIDEO_WIDTH,height=$VIDEO_HEIGHT,framerate=$VIDEO_FPS" \
+  ! jpegparse ! jpegdec ! queue ! videorate ! x264enc bitrate=$(($VIDEO_BITRATE / 1000)) ! rtph264pay pt=96 \
+  ! udpsink host=$SENDTO_IP port=$SENDTO_PORT
+
+  echo "Restarting in 1 second. Press Ctrl-C again to exit..."
+  sleep 1
+done

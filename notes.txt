@@ -1,0 +1,22 @@
+RPi Streamer
+gst-launch-1.0 -v -e v4l2src device=/dev/video0 ! 'video/x-raw,format=I420,width=1280,height=720,framerate=15/1' ! omxh264enc target-bitrate=1500000 control-rate=variable ! rtph264pay pt=96 ! udpsink host=10.1.1.74 port=5000
+Ubuntu Receiver
+gst-launch-1.0 -v udpsrc port=5000 caps="application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264" ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink sync=false
+
+
+RPi Receiver
+gst-launch-1.0 -v udpsrc port=5001 caps="application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264" ! rtph264depay ! h264parse ! omxh264dec ! videoconvert ! ximagesink
+Ubuntu Streamer
+gst-launch-1.0 -v -e v4l2src device=/dev/video0 ! 'video/x-raw,format=I420,width=1280,height=720,framerate=15/1' ! x264enc bitrate=1500 pass=pass1 ! rtph264pay pt=96 ! udpsink host=10.1.1.64 port=5001
+
+requirements
+byobu
+gst-tools 1.0+
+gst-omx 1.0+
+
+todo - middleman RTP save of info?
+fullscreen - ! queue ! glimagesink
+
+RTP -> RTP relay + save to cloud -> RTP
+
+SSH running on server to each Pi

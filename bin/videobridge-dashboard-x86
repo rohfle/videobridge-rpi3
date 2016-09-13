@@ -1,0 +1,7 @@
+#!/bin/sh
+BASEPATH=$( cd "$(dirname "$0")" ; pwd -P )
+
+byobu new-session -d -s videobridge_dashboard 'dstat -a'
+byobu split-window -v "$BASEPATH/videobridge-streamer-x86"
+byobu split-window -h "$BASEPATH/videobridge-receiver-x86"
+byobu -2 attach-session -d
